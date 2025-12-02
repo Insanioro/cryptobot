@@ -1,0 +1,17 @@
+{
+    "welcome": "Welcome to Handle Valuation Assistant 👋\n\nI provide accurate market valuation for any Telegram @username based on real trading data, rarity analysis and current demand.\n\nBefore we start, please choose your language:",
+    "lang_set": "You're all set.\n\nPlease send the Telegram @username you would like to evaluate.\nExample formats: @flora, @mkt, @harmonic\n\nI will analyze its rarity, demand, structure and market range.",
+    "evaluating": "Evaluating {username}… 🔍\nPlease wait a moment.",
+    "result_template": "📊 Username Analysis: {username}\n\nStructure: {structure}\nCategory: {category}\nRarity level: {rarity}\nMarket demand: {demand}\nAesthetic score: {score}\nBranding potential: {branding}\n\n💰 Estimated market range:\n**${price_low} – ${price_high}**\n\nThis valuation is based on live market data, historical sales, and similarity scoring.",
+    "sell_info": "To proceed with selling {username}, please confirm:\n✔️ You are the current owner\n✔️ You can transfer it\n✔️ It complies with policies\n\nWe ensure secure transactions and verified buyers.\nClick 'Proceed' to connect.",
+    "methodology": "Our valuation model combines:\n1. Length coefficient\n2. Semantic quality\n3. Global rarity scoring\n4. Market demand index\n5. Historical sales\n\nSystem updated continuously.",
+    "error_format": "It appears this is not a valid Telegram username.\nPlease send a handle in the format: @example",
+    "btn_evaluate": "📊 Evaluate a handle",
+    "btn_sell": "💼 Sell your handle",
+    "btn_lang": "🌐 Change language",
+    "btn_contact": "📞 Contact expert",
+    "btn_method": "ℹ️ Valuation methodology",
+    "btn_proceed": "Proceed to expert",
+    "btn_sell_this": "Sell this handle",
+    "btn_another": "Get another valuation"
+}
