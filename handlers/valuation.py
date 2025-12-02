@@ -100,7 +100,7 @@ async def callback_eval_again(callback: CallbackQuery, state: FSMContext):
     lang = await db.get_language(callback.from_user.id)
     texts = load_texts(lang)
     
-    await callback.message.answer(texts["lang_set"])
+    await callback.message.answer(texts["lang_set"], parse_mode=ParseMode.HTML)
     await state.set_state(BotStates.waiting_for_username)
     await callback.answer()
 
