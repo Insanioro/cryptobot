@@ -33,13 +33,11 @@ def is_valid_username(text: str) -> bool:
     return bool(re.match(pattern, text))
 
 
-@router.message(BotStates.waiting_for_username)
-async def process_username(message: Message, state: FSMContext):
-    """Process username input for valuation."""
-    lang = await db.get_language(message.from_user.id)
-    texts = load_texts(lang)
-    
-    username = message.text.strip()
+async def evaluate_username(username: str, message: Message, state: FSMContext, lang: str, texts: dict):
+    """Common function to evaluate a username."""
+    # Ensure username starts with @
+    if not username.startswith("@"):
+        username = f"@{username}"
     
     if not is_valid_username(username):
         await message.answer(texts["error_format"])
@@ -92,6 +90,16 @@ async def process_username(message: Message, state: FSMContext):
         reply_markup=get_valuation_kb(texts),
         parse_mode=ParseMode.HTML
     )
+
+
+@router.message(BotStates.waiting_for_username)
+async def process_username(message: Message, state: FSMContext):
+    """Process username input for valuation."""
+    lang = await db.get_language(message.from_user.id)
+    texts = load_texts(lang)
+    
+    username = message.text.strip()
+    await evaluate_username(username, message, state, lang, texts)
 
 
 @router.callback_query(F.data == "eval_again")

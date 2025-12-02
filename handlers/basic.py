@@ -11,6 +11,7 @@ from database.db import db
 from states import BotStates
 from keyboards.builders import get_lang_kb, get_main_menu, get_sell_kb, get_channel_kb
 from config import CHANNEL_URL
+from handlers.valuation import evaluate_username
 
 
 router = Router()
@@ -99,11 +100,21 @@ async def btn_sell(message: Message):
 
 @router.message(F.text.in_(get_all_button_texts("btn_evaluate")))
 async def btn_evaluate(message: Message, state: FSMContext):
-    """Handle 'Evaluate a handle' button."""
+    """Handle 'Evaluate a handle' button - evaluate user's own username."""
     lang = await db.get_language(message.from_user.id)
     texts = load_texts(lang)
-    await message.answer(texts["lang_set"], parse_mode=ParseMode.HTML)
-    await state.set_state(BotStates.waiting_for_username)
+    
+    # Получаем username пользователя
+    user_username = message.from_user.username
+    
+    if not user_username:
+        # Если у пользователя нет username - просим ввести вручную
+        await message.answer(texts["no_username"], parse_mode=ParseMode.HTML)
+        await state.set_state(BotStates.waiting_for_username)
+        return
+    
+    # Сразу оцениваем username пользователя
+    await evaluate_username(user_username, message, state, lang, texts)
 
 
 @router.message(F.text.in_(get_all_button_texts("btn_channel")))
