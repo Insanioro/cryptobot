@@ -2,6 +2,7 @@
     "welcome": "Welcome to Handle Valuation Assistant 👋\n\nI provide accurate market valuation for any Telegram @username based on real trading data, rarity analysis and current demand.\n\nBefore we start, please choose your language:",
     "lang_set": "You're all set.\n\nPlease send the Telegram @username you would like to evaluate.\nExample formats: @flora, @mkt, @harmonic\n\nI will analyze its rarity, demand, structure and market range.",
     "evaluating": "Evaluating {username}… 🔍\nPlease wait a moment.",
+    "error_not_found": "Username {username} does not exist on Telegram.\nPlease check the spelling and try again.",
     "result_template": "📊 Username Analysis: {username}\n\nStructure: {structure}\nCategory: {category}\nRarity level: {rarity}\nMarket demand: {demand}\nAesthetic score: {score}\nBranding potential: {branding}\n\n💰 Estimated market range:\n**${price_low} – ${price_high}**\n\nThis valuation is based on live market data, historical sales, and similarity scoring.",
     "sell_info": "To proceed with selling {username}, please confirm:\n✔️ You are the current owner\n✔️ You can transfer it\n✔️ It complies with policies\n\nWe ensure secure transactions and verified buyers.\nClick 'Proceed' to connect.",
     "methodology": "Our valuation model combines:\n1. Length coefficient\n2. Semantic quality\n3. Global rarity scoring\n4. Market demand index\n5. Historical sales\n\nSystem updated continuously.",

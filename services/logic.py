@@ -1,4 +1,25 @@
 import random
+import aiohttp
+
+
+async def check_username_exists(username: str) -> bool:
+    """Check if Telegram username exists via t.me page."""
+    clean_username = username.lstrip("@")
+    url = f"https://t.me/{clean_username}"
+    
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status != 200:
+                    return False
+                
+                html = await response.text()
+                # Если юзернейм не существует, в HTML будет сообщение о том, что можно связаться
+                # Если существует — будет информация о профиле
+                return "tgme_page_photo" in html or "tgme_page_title" in html
+    except Exception:
+        # В случае ошибки сети — пропускаем проверку
+        return True
 
 
 def get_valuation_data(username: str) -> dict:
