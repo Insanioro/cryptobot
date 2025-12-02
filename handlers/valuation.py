@@ -54,11 +54,18 @@ async def process_username(message: Message, state: FSMContext):
         await eval_msg.edit_text(texts["error_not_found"].format(username=username))
         return
     
-    # Simulate additional analysis delay
-    await asyncio.sleep(3)
+    # Check if we have cached valuation
+    cached_data = await db.get_valuation(username)
     
-    # Get valuation data
-    data = get_valuation_data(username)
+    if cached_data:
+        data = cached_data
+    else:
+        # Simulate additional analysis delay
+        await asyncio.sleep(3)
+        
+        # Get valuation data and save to cache
+        data = get_valuation_data(username)
+        await db.save_valuation(data)
     
     # Format result
     result = texts["result_template"].format(
