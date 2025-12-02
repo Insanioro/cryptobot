@@ -1,9 +1,9 @@
 {
     "welcome": "Welcome to Handle Valuation Assistant 👋\n\nI provide accurate market valuation for any Telegram @username based on real trading data, rarity analysis and current demand.\n\nBefore we start, please choose your language:",
     "lang_set": "You're all set.\n\nPlease send the Telegram @username you would like to evaluate.\nExample formats: @flora, @mkt, @harmonic\n\nI will analyze its rarity, demand, structure and market range.",
-    "evaluating": "Evaluating {username}… 🔍\nPlease wait a moment.",
+    "evaluating": "🔍 ANALYZING HANDLE DATABASE...\n\n█ <code>Target: {username}</code>\n█ <code>Scanning: Global Markets</code>\n█ <code>Metrics: Liquidity & Rarity</code>\n\n⌛ Calculating valuation model...",
     "error_not_found": "Username {username} does not exist on Telegram.\nPlease check the spelling and try again.",
-    "result_template": "📊 Username Analysis: {username}\n\nStructure: {structure}\nCategory: {category}\nRarity level: {rarity}\nMarket demand: {demand}\nAesthetic score: {score}\nBranding potential: {branding}\n\n💰 Estimated market range:\n**${price_low} – ${price_high}**\n\nThis valuation is based on live market data, historical sales, and similarity scoring.",
+    "result_template": "💎 VALUATION REPORT\n<code>ID: {username}</code>\n──────────────────────────────\n\n📊 ASSET METRICS\n\n■ Structure: <code>{structure}</code>\n■ Category: <code>{category}</code>\n■ Rarity Class: <code>{rarity}</code>\n\n📈 MARKET ANALYSIS\n\n■ Demand: <code>{demand}</code>\n■ Aesthetics: <code>{score}/10.0</code>\n■ Potential: <code>{branding}</code>\n\n💰 ESTIMATED MARKET VALUE\n\n█ <b>${price_low} – ${price_high}</b>\n█ <code>(USDT / TON Equivalent)</code>\n\n<i>Based on real-time similarity scoring.</i>",
     "sell_info": "To proceed with selling {username}, please confirm:\n✔️ You are the current owner\n✔️ You can transfer it\n✔️ It complies with policies\n\nWe ensure secure transactions and verified buyers.\nClick 'Proceed' to connect.",
     "methodology": "Our valuation model combines:\n1. Length coefficient\n2. Semantic quality\n3. Global rarity scoring\n4. Market demand index\n5. Historical sales\n\nSystem updated continuously.",
     "error_format": "It appears this is not a valid Telegram username.\nPlease send a handle in the format: @example",
@@ -14,5 +14,8 @@
     "btn_method": "ℹ️ Valuation methodology",
     "btn_proceed": "Proceed to expert",
     "btn_sell_this": "Sell this handle",
-    "btn_another": "Get another valuation"
+    "btn_another": "Get another valuation",
+    "btn_channel": "📢 Channel",
+    "btn_go_channel": "➡️ Go to Channel",
+    "channel_info": "Subscribe to our channel for latest updates, market insights and exclusive offers!"
 }

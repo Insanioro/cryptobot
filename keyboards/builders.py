@@ -5,7 +5,7 @@ from aiogram.types import (
     KeyboardButton
 )
 
-from config import ADMIN_ID
+from config import ADMIN_USERNAME, CHANNEL_URL
 
 
 def get_lang_kb() -> InlineKeyboardMarkup:
@@ -33,6 +33,9 @@ def get_main_menu(texts: dict) -> ReplyKeyboardMarkup:
                 KeyboardButton(text=texts["btn_lang"]),
                 KeyboardButton(text=texts["btn_method"]),
             ],
+            [
+                KeyboardButton(text=texts["btn_channel"]),
+            ],
         ],
         resize_keyboard=True,
         is_persistent=True
@@ -57,7 +60,13 @@ def get_valuation_kb(texts: dict) -> InlineKeyboardMarkup:
         [
             InlineKeyboardButton(
                 text=texts["btn_contact"], 
-                url=f"https://t.me/{ADMIN_ID}"
+                url=f"https://t.me/{ADMIN_USERNAME}"
+            ),
+        ],
+        [
+            InlineKeyboardButton(
+                text=texts["btn_channel"], 
+                url=CHANNEL_URL
             ),
         ],
     ])
@@ -69,7 +78,25 @@ def get_sell_kb(texts: dict) -> InlineKeyboardMarkup:
         [
             InlineKeyboardButton(
                 text=texts["btn_proceed"], 
-                url=f"https://t.me/{ADMIN_ID}"
+                url=f"https://t.me/{ADMIN_USERNAME}"
+            ),
+        ],
+        [
+            InlineKeyboardButton(
+                text=texts["btn_channel"], 
+                url=CHANNEL_URL
+            ),
+        ],
+    ])
+
+
+def get_channel_kb(texts: dict) -> InlineKeyboardMarkup:
+    """Inline keyboard for channel link."""
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text=texts["btn_go_channel"], 
+                url=CHANNEL_URL
             ),
         ],
     ])

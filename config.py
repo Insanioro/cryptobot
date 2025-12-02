@@ -5,6 +5,8 @@ load_dotenv()
 
 BOT_TOKEN: str = os.getenv("BOT_TOKEN", "")
 ADMIN_ID: int = int(os.getenv("ADMIN_ID", "0"))
+ADMIN_USERNAME: str = os.getenv("ADMIN_USERNAME", "")
+CHANNEL_URL: str = os.getenv("CHANNEL_URL", "")
 
 PG_USER: str = os.getenv("PG_USER", "postgres")
 PG_PASS: str = os.getenv("PG_PASS", "")

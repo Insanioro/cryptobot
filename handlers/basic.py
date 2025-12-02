@@ -8,7 +8,8 @@ from aiogram.fsm.context import FSMContext
 
 from database.db import db
 from states import BotStates
-from keyboards.builders import get_lang_kb, get_main_menu, get_sell_kb
+from keyboards.builders import get_lang_kb, get_main_menu, get_sell_kb, get_channel_kb
+from config import CHANNEL_URL
 
 
 router = Router()
@@ -101,3 +102,14 @@ async def btn_evaluate(message: Message, state: FSMContext):
     texts = load_texts(lang)
     await message.answer(texts["lang_set"])
     await state.set_state(BotStates.waiting_for_username)
+
+
+@router.message(F.text.in_(get_all_button_texts("btn_channel")))
+async def btn_channel(message: Message):
+    """Handle 'Channel' button - send channel link."""
+    lang = await db.get_language(message.from_user.id)
+    texts = load_texts(lang)
+    await message.answer(
+        texts["channel_info"],
+        reply_markup=get_channel_kb(texts)
+    )

@@ -6,6 +6,7 @@ from pathlib import Path
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
+from aiogram.enums import ParseMode
 
 from database.db import db
 from states import BotStates
@@ -45,7 +46,10 @@ async def process_username(message: Message, state: FSMContext):
         return
     
     # Send "evaluating" message
-    eval_msg = await message.answer(texts["evaluating"].format(username=username))
+    eval_msg = await message.answer(
+        texts["evaluating"].format(username=username),
+        parse_mode=ParseMode.HTML
+    )
     
     # Check if username actually exists on Telegram
     exists = await check_username_exists(username)
@@ -85,7 +89,8 @@ async def process_username(message: Message, state: FSMContext):
     
     await message.answer(
         result,
-        reply_markup=get_valuation_kb(texts)
+        reply_markup=get_valuation_kb(texts),
+        parse_mode=ParseMode.HTML
     )
 
 
