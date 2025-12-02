@@ -5,6 +5,7 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
+from aiogram.enums import ParseMode
 
 from database.db import db
 from states import BotStates
@@ -59,7 +60,8 @@ async def process_language(callback: CallbackQuery, state: FSMContext):
     
     await callback.message.answer(
         texts["lang_set"],
-        reply_markup=get_main_menu(texts)
+        reply_markup=get_main_menu(texts),
+        parse_mode=ParseMode.HTML
     )
     await state.set_state(BotStates.waiting_for_username)
     await callback.answer()
@@ -100,7 +102,7 @@ async def btn_evaluate(message: Message, state: FSMContext):
     """Handle 'Evaluate a handle' button."""
     lang = await db.get_language(message.from_user.id)
     texts = load_texts(lang)
-    await message.answer(texts["lang_set"])
+    await message.answer(texts["lang_set"], parse_mode=ParseMode.HTML)
     await state.set_state(BotStates.waiting_for_username)
 
 
