@@ -11,12 +11,16 @@ from aiogram.enums import ParseMode
 from database.db import db
 from states import BotStates
 from services.logic import get_valuation_data, check_username_exists
+from services.event_logger import EventLogger
 from keyboards.builders import get_valuation_kb, get_sell_kb, get_main_menu
 
 
 router = Router()
 
 LOCALES_DIR = Path(__file__).parent.parent / "locales"
+
+# Initialize event logger
+event_logger = EventLogger(db)
 
 
 def load_texts(lang: str) -> dict:
@@ -85,6 +89,21 @@ async def evaluate_username(username: str, message: Message, state: FSMContext, 
     # Save current username to state for sell_current callback
     await state.update_data(last_username=username)
     
+    # Log nickname check event
+    from services.event_logger import EventLogger
+    event_logger = EventLogger(db)
+    user_username = message.from_user.username
+    metadata = {'nickname': username}
+    if data:
+        metadata['price_low'] = data["price_low"]
+        metadata['price_high'] = data["price_high"]
+    await event_logger.log_event(
+        message.from_user.id,
+        'check_nickname',
+        metadata,
+        user_username
+    )
+    
     await message.answer(
         result,
         reply_markup=get_valuation_kb(texts),
@@ -121,6 +140,14 @@ async def callback_sell_current(callback: CallbackQuery, state: FSMContext):
     
     data = await state.get_data()
     username = data.get("last_username", "your handle")
+    
+    # Log start checkout event
+    await event_logger.log_event(
+        callback.from_user.id,
+        'start_checkout',
+        {'nickname': username},
+        callback.from_user.username
+    )
     
     await callback.message.answer(
         texts["sell_info"].format(username=username),

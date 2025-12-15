@@ -333,7 +333,7 @@ class Database:
                 SELECT user_id, username, first_seen, last_activity,
                        (SELECT COUNT(*) FROM events WHERE events.user_id = users.user_id) as total_events
                 FROM users
-                ORDER BY (username IS NOT NULL AND username != '') DESC, last_activity DESC
+                ORDER BY last_activity DESC
                 LIMIT $1 OFFSET $2
                 """,
                 limit, offset
@@ -440,6 +440,94 @@ class Database:
                     notify_abandoned_checkouts if notify_abandoned_checkouts is not None else True,
                     abandoned_threshold if abandoned_threshold is not None else 10
                 )
+                    notify_abandoned_checkouts BOOLEAN DEFAULT TRUE,
+                    abandoned_threshold INTEGER DEFAULT 10,
+                    updated_at TIMESTAMP DEFAULT NOW()
+                )
+            """)
+            
+            # Daily stats cache table
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS daily_stats_cache (
+                    stat_date DATE PRIMARY KEY,
+                    total_users INTEGER DEFAULT 0,
+                    new_users INTEGER DEFAULT 0,
+                    bot_restarts INTEGER DEFAULT 0,
+                    group_visits INTEGER DEFAULT 0,
+                    manager_contacts INTEGER DEFAULT 0,
+                    nickname_checks INTEGER DEFAULT 0,
+                    checkout_starts INTEGER DEFAULT 0,
+                    successful_orders INTEGER DEFAULT 0,
+                    abandoned_checkouts INTEGER DEFAULT 0,
+                    updated_at TIMESTAMP DEFAULT NOW()
+                )
+            """)
+
+    async def add_user(self, user_id: int) -> None:
+        async with self.pool.acquire() as conn:
+            await conn.execute(
+                "INSERT INTO users (user_id) VALUES ($1) ON CONFLICT DO NOTHING",
+                user_id
+            )
+
+    async def set_language(self, user_id: int, lang: str) -> None:
+        async with self.pool.acquire() as conn:
+            await conn.execute(
+                "UPDATE users SET language = $2 WHERE user_id = $1",
+                user_id, lang
+            )
+
+    async def get_language(self, user_id: int) -> str:
+        async with self.pool.acquire() as conn:
+            result = await conn.fetchval(
+                "SELECT language FROM users WHERE user_id = $1",
+                user_id
+            )
+            return result if result else "en"
+
+    async def get_valuation(self, username: str) -> dict | None:
+        """Get cached valuation for username."""
+        clean_username = username.lstrip("@").lower()
+        async with self.pool.acquire() as conn:
+            row = await conn.fetchrow(
+                "SELECT * FROM username_valuations WHERE username = $1",
+                clean_username
+            )
+            if row:
+                return {
+                    "username": f"@{clean_username}",
+                    "structure": row["structure"],
+                    "category": row["category"],
+                    "rarity": row["rarity"],
+                    "demand": row["demand"],
+                    "score": row["score"],
+                    "branding": row["branding"],
+                    "price_low": row["price_low"],
+                    "price_high": row["price_high"],
+                }
+            return None
+
+    async def save_valuation(self, data: dict) -> None:
+        """Save valuation data to cache."""
+        clean_username = data["username"].lstrip("@").lower()
+        async with self.pool.acquire() as conn:
+            await conn.execute(
+                """
+                INSERT INTO username_valuations 
+                (username, structure, category, rarity, demand, score, branding, price_low, price_high)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                ON CONFLICT (username) DO NOTHING
+                """,
+                clean_username,
+                data["structure"],
+                data["category"],
+                data["rarity"],
+                data["demand"],
+                data["score"],
+                data["branding"],
+                data["price_low"],
+                data["price_high"]
+            )
 
 
 db = Database()

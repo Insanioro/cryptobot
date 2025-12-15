@@ -12,11 +12,15 @@ from states import BotStates
 from keyboards.builders import get_lang_kb, get_main_menu, get_sell_kb, get_channel_kb
 from config import CHANNEL_URL
 from handlers.valuation import evaluate_username
+from services.event_logger import EventLogger
 
 
 router = Router()
 
 LOCALES_DIR = Path(__file__).parent.parent / "locales"
+
+# Initialize event logger
+event_logger = EventLogger(db)
 
 
 def load_texts(lang: str) -> dict:
@@ -42,7 +46,21 @@ def get_all_button_texts(key: str) -> list[str]:
 @router.message(CommandStart())
 async def cmd_start(message: Message):
     """Handle /start command."""
-    await db.add_user(message.from_user.id)
+    user_id = message.from_user.id
+    username = message.from_user.username
+    
+    # Check if user already exists
+    existing_user = await db.get_user_stats(user_id)
+    
+    await db.add_user(user_id)
+    await db.update_user_info(user_id, username)
+    
+    # Log event
+    if existing_user:
+        await event_logger.log_bot_restart(user_id)
+    else:
+        await event_logger.log_first_start(user_id, username)
+    
     texts = load_texts("en")
     await message.answer(
         texts["welcome"],
@@ -122,6 +140,15 @@ async def btn_channel(message: Message):
     """Handle 'Channel' button - send channel link."""
     lang = await db.get_language(message.from_user.id)
     texts = load_texts(lang)
+    
+    # Log event
+    await event_logger.log_event(
+        message.from_user.id,
+        'go_to_group',
+        {'group_url': CHANNEL_URL},
+        message.from_user.username
+    )
+    
     await message.answer(
         texts["channel_info"],
         reply_markup=get_channel_kb(texts)

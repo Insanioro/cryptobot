@@ -9,6 +9,8 @@ from config import BOT_TOKEN
 from database.db import db
 from handlers.basic import router as basic_router
 from handlers.valuation import router as valuation_router
+from handlers.admin import router as admin_router
+from middleware.admin_check import AdminCheckMiddleware
 
 
 logging.basicConfig(
@@ -25,7 +27,12 @@ async def main():
     )
     dp = Dispatcher()
     
+    # Add middleware
+    dp.message.middleware(AdminCheckMiddleware())
+    dp.callback_query.middleware(AdminCheckMiddleware())
+    
     # Include routers
+    dp.include_router(admin_router)  # Admin router first for priority
     dp.include_router(basic_router)
     dp.include_router(valuation_router)
     
