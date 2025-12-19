@@ -57,6 +57,26 @@ class Database:
                     EXCEPTION
                         WHEN duplicate_column THEN NULL;
                     END;
+                    BEGIN
+                        ALTER TABLE users ADD COLUMN is_bot_blocked BOOLEAN DEFAULT FALSE;
+                    EXCEPTION
+                        WHEN duplicate_column THEN NULL;
+                    END;
+                    BEGIN
+                        ALTER TABLE users ADD COLUMN last_valuation_date TIMESTAMP;
+                    EXCEPTION
+                        WHEN duplicate_column THEN NULL;
+                    END;
+                    BEGIN
+                        ALTER TABLE users ADD COLUMN contacted_manager BOOLEAN DEFAULT FALSE;
+                    EXCEPTION
+                        WHEN duplicate_column THEN NULL;
+                    END;
+                    BEGIN
+                        ALTER TABLE users ADD COLUMN reminder_sent BOOLEAN DEFAULT FALSE;
+                    EXCEPTION
+                        WHEN duplicate_column THEN NULL;
+                    END;
                 END $$;
             """)
             
@@ -82,8 +102,7 @@ class Database:
                     user_id BIGINT NOT NULL,
                     event_type VARCHAR(50) NOT NULL,
                     timestamp TIMESTAMP DEFAULT NOW(),
-                    metadata JSONB DEFAULT '{}'::jsonb,
-                    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+                    metadata JSONB DEFAULT '{}'::jsonb
                 )
             """)
             
@@ -128,6 +147,53 @@ class Database:
                     abandoned_checkouts INTEGER DEFAULT 0,
                     updated_at TIMESTAMP DEFAULT NOW()
                 )
+            """)
+            
+            # Valuations table for tracking user evaluations
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS valuations (
+                    id BIGSERIAL PRIMARY KEY,
+                    user_id BIGINT NOT NULL,
+                    username_checked VARCHAR(255) NOT NULL,
+                    estimated_price VARCHAR(100),
+                    valuation_date TIMESTAMP DEFAULT NOW(),
+                    manager_contacted BOOLEAN DEFAULT FALSE,
+                    reminder_sent BOOLEAN DEFAULT FALSE,
+                    reminder_sent_at TIMESTAMP
+                )
+            """)
+            
+            # Create indexes for valuations table
+            await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_valuations_user_id ON valuations(user_id);
+            """)
+            await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_valuations_date ON valuations(valuation_date);
+            """)
+            await conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_valuations_reminder ON valuations(reminder_sent, manager_contacted);
+            """)
+            
+            # System settings table for configurable parameters
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS system_settings (
+                    setting_key VARCHAR(100) PRIMARY KEY,
+                    setting_value TEXT NOT NULL,
+                    setting_type VARCHAR(20) DEFAULT 'string',
+                    description TEXT,
+                    updated_at TIMESTAMP DEFAULT NOW(),
+                    updated_by BIGINT
+                )
+            """)
+            
+            # Initialize default settings
+            await conn.execute("""
+                INSERT INTO system_settings (setting_key, setting_value, setting_type, description)
+                VALUES 
+                    ('reminder_check_interval', '1', 'int', 'Interval in minutes to check for pending reminders'),
+                    ('reminder_enabled', 'true', 'bool', 'Enable/disable reminder system'),
+                    ('reminder_delay_minutes', '15', 'int', 'Minutes to wait before sending reminder after valuation')
+                ON CONFLICT (setting_key) DO NOTHING
             """)
     
     async def add_user(self, user_id: int) -> None:
@@ -440,6 +506,156 @@ class Database:
                     notify_abandoned_checkouts if notify_abandoned_checkouts is not None else True,
                     abandoned_threshold if abandoned_threshold is not None else 10
                 )
+    
+    # Valuation methods
+    async def create_valuation(self, user_id: int, username_checked: str, estimated_price: str) -> int:
+        """Create a new valuation record."""
+        async with self.pool.acquire() as conn:
+            # Update user's last valuation date and reset flags
+            await conn.execute(
+                """
+                UPDATE users 
+                SET last_valuation_date = NOW(), 
+                    contacted_manager = FALSE, 
+                    reminder_sent = FALSE
+                WHERE user_id = $1
+                """,
+                user_id
+            )
+            
+            # Create valuation record
+            valuation_id = await conn.fetchval(
+                """
+                INSERT INTO valuations (user_id, username_checked, estimated_price, valuation_date)
+                VALUES ($1, $2, $3, NOW())
+                RETURNING id
+                """,
+                user_id, username_checked, estimated_price
+            )
+            return valuation_id
+    
+    async def mark_manager_contacted(self, user_id: int) -> None:
+        """Mark user as having contacted the manager."""
+        async with self.pool.acquire() as conn:
+            await conn.execute(
+                "UPDATE users SET contacted_manager = TRUE WHERE user_id = $1",
+                user_id
+            )
+            # Also update all pending valuations
+            await conn.execute(
+                """
+                UPDATE valuations 
+                SET manager_contacted = TRUE 
+                WHERE user_id = $1 AND manager_contacted = FALSE
+                """,
+                user_id
+            )
+    
+    async def mark_reminder_sent(self, user_id: int) -> None:
+        """Mark reminder as sent for user."""
+        async with self.pool.acquire() as conn:
+            await conn.execute(
+                "UPDATE users SET reminder_sent = TRUE WHERE user_id = $1",
+                user_id
+            )
+            # Update the latest valuation using subquery
+            await conn.execute(
+                """
+                UPDATE valuations 
+                SET reminder_sent = TRUE, reminder_sent_at = NOW()
+                WHERE id = (
+                    SELECT id 
+                    FROM valuations 
+                    WHERE user_id = $1 
+                    AND reminder_sent = FALSE
+                    AND manager_contacted = FALSE
+                    ORDER BY valuation_date DESC
+                    LIMIT 1
+                )
+                """,
+                user_id
+            )
+    
+    async def get_users_for_reminder(self, delay_minutes: int) -> list:
+        """Get users who need reminders."""
+        async with self.pool.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT DISTINCT ON (u.user_id) u.user_id, u.username, v.id as valuation_id, v.valuation_date
+                FROM users u
+                INNER JOIN valuations v ON u.user_id = v.user_id
+                WHERE v.valuation_date < NOW() - INTERVAL '%s minutes'
+                AND v.manager_contacted = FALSE
+                AND v.reminder_sent = FALSE
+                AND u.is_bot_blocked = FALSE
+                ORDER BY u.user_id, v.valuation_date DESC
+                """ % delay_minutes
+            )
+            return [dict(row) for row in rows]
+    
+    async def mark_user_blocked(self, user_id: int) -> None:
+        """Mark user as having blocked the bot."""
+        async with self.pool.acquire() as conn:
+            await conn.execute(
+                "UPDATE users SET is_bot_blocked = TRUE WHERE user_id = $1",
+                user_id
+            )
+    
+    async def mark_user_unblocked(self, user_id: int) -> None:
+        """Mark user as having unblocked the bot."""
+        async with self.pool.acquire() as conn:
+            await conn.execute(
+                "UPDATE users SET is_bot_blocked = FALSE WHERE user_id = $1",
+                user_id
+            )
+    
+    # System Settings Methods
+    async def get_system_setting(self, key: str, default: str = None) -> str:
+        """Get system setting value by key."""
+        async with self.pool.acquire() as conn:
+            value = await conn.fetchval(
+                "SELECT setting_value FROM system_settings WHERE setting_key = $1",
+                key
+            )
+            return value if value is not None else default
+    
+    async def set_system_setting(self, key: str, value: str, admin_id: int = None) -> None:
+        """Set system setting value."""
+        async with self.pool.acquire() as conn:
+            await conn.execute("""
+                INSERT INTO system_settings (setting_key, setting_value, updated_by, updated_at)
+                VALUES ($1, $2, $3, NOW())
+                ON CONFLICT (setting_key) 
+                DO UPDATE SET 
+                    setting_value = $2,
+                    updated_by = $3,
+                    updated_at = NOW()
+            """, key, value, admin_id)
+    
+    async def get_all_system_settings(self) -> dict:
+        """Get all system settings as a dictionary."""
+        async with self.pool.acquire() as conn:
+            rows = await conn.fetch(
+                "SELECT setting_key, setting_value, setting_type, description FROM system_settings"
+            )
+            return {row['setting_key']: {
+                'value': row['setting_value'],
+                'type': row['setting_type'],
+                'description': row['description']
+            } for row in rows}
+    
+    async def get_active_users_for_broadcast(self) -> list:
+        """Get all active users for broadcast (not blocked)."""
+        async with self.pool.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT user_id, username, language
+                FROM users
+                WHERE is_bot_blocked = FALSE
+                ORDER BY user_id
+                """
+            )
+            return [dict(row) for row in rows]
 
 
 db = Database()

@@ -23,7 +23,7 @@ class AdminCheckMiddleware(BaseMiddleware):
         is_admin_action = False
         
         if isinstance(event, Message):
-            if event.text and event.text.startswith('/admin') or event.text.startswith('/stats'):
+            if event.text and (event.text.startswith('/admin') or event.text.startswith('/stats')):
                 is_admin_action = True
         elif isinstance(event, CallbackQuery):
             if event.data and event.data.startswith('admin_'):

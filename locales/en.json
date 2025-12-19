@@ -18,5 +18,10 @@
     "btn_another": "Get another valuation",
     "btn_channel": "📢 Channel",
     "btn_go_channel": "➡️ Go to Channel",
-    "channel_info": "Subscribe to our channel for latest updates, market insights and exclusive offers!"
+    "channel_info": "Subscribe to our channel for updates, market analysis, and exclusive deals!",
+    "valuation_instructions": "To proceed with selling {username}, please confirm:\n✔️ You are the current owner\n✔️ You can transfer it\n✔️ It complies with the rules\n\nWe ensure safe deals and verified buyers.\nClick \"Continue\" to get in touch.\n\n📌 Next step:\n— Click on \"Continue to Expert\"\n— Send a screenshot of this valuation\n\nManager will:\n✔️ tell you if it's realistic to sell\n✔️ help with further steps\n✔️ answer all your questions\n\n👇 Click the button below to contact the manager",
+    "button_continue_to_expert": "✅ Continue to Expert",
+    "button_join_group": "🔹 Join Group",
+    "reminder_message": "🔔 You checked the value of your username but haven't contacted the manager yet.\n\nTo help you further:\n1️⃣ Contact the manager\n2️⃣ Send a screenshot of the valuation\n\nThe manager will advise you on how to sell your username profitably 👇",
+    "button_contact_manager": "Contact Manager"
 }

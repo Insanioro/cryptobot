@@ -86,6 +86,9 @@ async def evaluate_username(username: str, message: Message, state: FSMContext, 
         price_high=data["price_high"]
     )
     
+    # Add valuation instructions with the evaluated username
+    result += "\n\n" + texts["valuation_instructions"].format(username=username)
+    
     # Save current username to state for sell_current callback
     await state.update_data(last_username=username)
     
@@ -104,9 +107,28 @@ async def evaluate_username(username: str, message: Message, state: FSMContext, 
         user_username
     )
     
+    # Create valuation record in database
+    estimated_price = f"${data['price_low']} - ${data['price_high']}"
+    await db.create_valuation(
+        user_id=message.from_user.id,
+        username_checked=username,
+        estimated_price=estimated_price
+    )
+    
+    # Use new valuation result keyboard
+    from keyboards.builders import get_valuation_result_keyboard
+    from config import MANAGER_LINK, CHANNEL_URL, SHOW_GROUP_BUTTON
+    
+    keyboard = get_valuation_result_keyboard(
+        manager_link=MANAGER_LINK,
+        channel_url=CHANNEL_URL,
+        texts=texts,
+        show_group_button=SHOW_GROUP_BUTTON
+    )
+    
     await message.answer(
         result,
-        reply_markup=get_valuation_kb(texts),
+        reply_markup=keyboard,
         parse_mode=ParseMode.HTML
     )
 

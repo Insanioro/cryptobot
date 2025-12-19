@@ -22,6 +22,15 @@ DEFAULT_ABANDONED_THRESHOLD: int = int(os.getenv("DEFAULT_ABANDONED_THRESHOLD", 
 STATS_CACHE_TTL: int = int(os.getenv("STATS_CACHE_TTL", "300"))  # 5 minutes
 STATS_EXPORT_DIR: str = os.getenv("STATS_EXPORT_DIR", "./exports")
 
+# Reminder settings
+REMINDER_DELAY_MINUTES: int = int(os.getenv("REMINDER_DELAY_MINUTES", "15"))
+REMINDER_ENABLED: bool = os.getenv("REMINDER_ENABLED", "true").lower() == "true"
+REMINDER_CHECK_INTERVAL_MINUTES: int = int(os.getenv("REMINDER_CHECK_INTERVAL_MINUTES", "1"))
+
+# Manager and group links
+MANAGER_LINK: str = f"https://t.me/{ADMIN_USERNAME}"
+SHOW_GROUP_BUTTON: bool = os.getenv("SHOW_GROUP_BUTTON", "false").lower() == "true"
+
 PG_USER: str = os.getenv("PG_USER", "postgres")
 PG_PASS: str = os.getenv("PG_PASS", "")
 PG_HOST: str = os.getenv("PG_HOST", "localhost")

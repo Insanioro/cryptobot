@@ -64,6 +64,66 @@ class NotificationSettings:
     updated_at: Optional[datetime] = None
 
 
+@dataclass
+class User:
+    """User model with extended fields."""
+    user_id: int
+    language: str = 'en'
+    join_date: Optional[datetime] = None
+    first_seen: Optional[datetime] = None
+    last_activity: Optional[datetime] = None
+    username: Optional[str] = None
+    is_admin: bool = False
+    is_bot_blocked: bool = False
+    last_valuation_date: Optional[datetime] = None
+    contacted_manager: bool = False
+    reminder_sent: bool = False
+    
+    @classmethod
+    def from_row(cls, row) -> 'User':
+        """Create User from database row."""
+        return cls(
+            user_id=row['user_id'],
+            language=row.get('language', 'en'),
+            join_date=row.get('join_date'),
+            first_seen=row.get('first_seen'),
+            last_activity=row.get('last_activity'),
+            username=row.get('username'),
+            is_admin=row.get('is_admin', False),
+            is_bot_blocked=row.get('is_bot_blocked', False),
+            last_valuation_date=row.get('last_valuation_date'),
+            contacted_manager=row.get('contacted_manager', False),
+            reminder_sent=row.get('reminder_sent', False)
+        )
+
+
+@dataclass
+class Valuation:
+    """Username valuation record."""
+    id: Optional[int]
+    user_id: int
+    username_checked: str
+    estimated_price: str
+    valuation_date: datetime
+    manager_contacted: bool = False
+    reminder_sent: bool = False
+    reminder_sent_at: Optional[datetime] = None
+    
+    @classmethod
+    def from_row(cls, row) -> 'Valuation':
+        """Create Valuation from database row."""
+        return cls(
+            id=row['id'],
+            user_id=row['user_id'],
+            username_checked=row['username_checked'],
+            estimated_price=row['estimated_price'],
+            valuation_date=row['valuation_date'],
+            manager_contacted=row.get('manager_contacted', False),
+            reminder_sent=row.get('reminder_sent', False),
+            reminder_sent_at=row.get('reminder_sent_at')
+        )
+
+
 # Event type constants
 class EventType:
     """Event type constants."""

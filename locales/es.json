@@ -18,5 +18,10 @@
     "btn_another": "Obtener otra valoración",
     "btn_channel": "📢 Canal",
     "btn_go_channel": "➡️ Ir al Canal",
-    "channel_info": "¡Suscríbete a nuestro canal para las últimas actualizaciones, análisis de mercado y ofertas exclusivas!"
+    "channel_info": "¡Suscríbete a nuestro canal para actualizaciones, análisis de mercado y ofertas exclusivas!",
+    "valuation_instructions": "Para proceder con la venta de {username}, confirme:\n✔️ Usted es el propietario actual\n✔️ Puede transferirlo\n✔️ Cumple con las reglas\n\nGarantizamos transacciones seguras y compradores verificados.\nHaga clic en \"Continuar\" para contactar.\n\n📌 Siguiente paso:\n— Haga clic en \"Continuar con el Experto\"\n— Envíe una captura de pantalla de esta valoración\n\nEl gerente:\n✔️ le dirá si es realista vender\n✔️ ayudará con los siguientes pasos\n✔️ responderá todas sus preguntas\n\n👇 Haga clic en el botón de abajo para contactar al gerente",
+    "button_continue_to_expert": "✅ Continuar con el Experto",
+    "button_join_group": "🔹 Unirse al Grupo",
+    "reminder_message": "🔔 Has verificado el valor de tu nombre de usuario pero aún no has contactado al gerente.\n\nPara ayudarte más:\n1️⃣ Contacta al gerente\n2️⃣ Envía una captura de pantalla de la valoración\n\nEl gerente te aconsejará sobre cómo vender tu nombre de usuario de manera rentable 👇",
+    "button_contact_manager": "Contactar al Gerente"
 }

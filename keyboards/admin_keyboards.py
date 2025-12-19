@@ -25,7 +25,11 @@ def get_admin_main_menu() -> InlineKeyboardMarkup:
         InlineKeyboardButton(text="📋 По типам событий", callback_data="admin_events_menu")
     )
     builder.row(
-        InlineKeyboardButton(text="🔔 Настройки уведомлений", callback_data="admin_notifications")
+        InlineKeyboardButton(text="� Рассылка", callback_data="admin_broadcast")
+    )
+    builder.row(        InlineKeyboardButton(text="⚙️ Настройки системы", callback_data="admin_settings")
+    )
+    builder.row(        InlineKeyboardButton(text="�🔔 Настройки уведомлений", callback_data="admin_notifications")
     )
     
     return builder.as_markup()
@@ -193,5 +197,88 @@ def get_back_to_main_keyboard() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.row(
         InlineKeyboardButton(text="🔙 Главное меню", callback_data="admin_main")
+    )
+    return builder.as_markup()
+
+
+def get_broadcast_menu_keyboard() -> InlineKeyboardMarkup:
+    """Get broadcast main menu keyboard."""
+    builder = InlineKeyboardBuilder()
+    
+    builder.row(
+        InlineKeyboardButton(text="📨 Начать рассылку", callback_data="broadcast_start")
+    )
+    builder.row(
+        InlineKeyboardButton(text="🔙 Назад", callback_data="admin_main")
+    )
+    
+    return builder.as_markup()
+
+
+def get_message_type_keyboard() -> InlineKeyboardMarkup:
+    """Get message type selection keyboard."""
+    builder = InlineKeyboardBuilder()
+    
+    builder.row(
+        InlineKeyboardButton(text="📝 Только текст", callback_data="broadcast_type_text")
+    )
+    builder.row(
+        InlineKeyboardButton(text="🖼 Текст + Фото", callback_data="broadcast_type_photo")
+    )
+    builder.row(
+        InlineKeyboardButton(text="❌ Отмена", callback_data="broadcast_cancel")
+    )
+    
+    return builder.as_markup()
+
+
+def get_preview_keyboard() -> InlineKeyboardMarkup:
+    """Get broadcast preview confirmation keyboard."""
+    builder = InlineKeyboardBuilder()
+    
+    builder.row(
+        InlineKeyboardButton(text="✅ Отправить", callback_data="broadcast_confirm")
+    )
+    builder.row(
+        InlineKeyboardButton(text="✏️ Изменить текст", callback_data="broadcast_edit_text")
+    )
+    builder.row(
+        InlineKeyboardButton(text="❌ Отмена", callback_data="broadcast_cancel")
+    )
+    
+    return builder.as_markup()
+
+
+def get_cancel_keyboard() -> InlineKeyboardMarkup:
+    """Get simple cancel keyboard."""
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(text="❌ Отмена", callback_data="broadcast_cancel")
+    )
+    return builder.as_markup()
+
+
+def get_settings_menu() -> InlineKeyboardMarkup:
+    """Get system settings menu keyboard."""
+    builder = InlineKeyboardBuilder()
+    
+    builder.row(
+        InlineKeyboardButton(text="⏱ Интервал проверки напоминаний", callback_data="settings_reminder_interval")
+    )
+    builder.row(
+        InlineKeyboardButton(text="⏰ Задержка отправки напоминания", callback_data="settings_reminder_delay")
+    )
+    builder.row(
+        InlineKeyboardButton(text="🔙 Главное меню", callback_data="admin_main")
+    )
+    
+    return builder.as_markup()
+
+
+def get_settings_back_keyboard() -> InlineKeyboardMarkup:
+    """Get back to settings keyboard."""
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(text="🔙 Назад к настройкам", callback_data="admin_settings")
     )
     return builder.as_markup()
