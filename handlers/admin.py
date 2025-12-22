@@ -707,12 +707,35 @@ async def callback_broadcast_confirm(callback: CallbackQuery, state: FSMContext,
             await bot.download_file(file.file_path, photo_path)
         
         # Execute broadcast
-        broadcast_service = BroadcastService(db)
-        stats = await broadcast_service.execute_broadcast(
-            bot=bot,
-            text=broadcast_text,
-            photo=str(photo_path) if photo_path else None
-        )
+        try:
+            broadcast_service = BroadcastService(db)
+            stats = await broadcast_service.execute_broadcast(
+                bot=bot,
+                text=broadcast_text,
+                photo=str(photo_path) if photo_path else None
+            )
+        except RuntimeError as e:
+            # Database pool not ready
+            logger.error(f"Database error during broadcast: {e}")
+            await status_msg.edit_text(
+                "❌ Ошибка подключения к базе данных.\n"
+                "Попробуйте еще раз через несколько секунд.",
+                reply_markup=get_admin_main_menu()
+            )
+            if photo_path and photo_path.exists():
+                photo_path.unlink()
+            await state.clear()
+            return
+        except Exception as e:
+            logger.error(f"Error during broadcast execution: {e}")
+            await status_msg.edit_text(
+                f"❌ Ошибка при выполнении рассылки: {e}",
+                reply_markup=get_admin_main_menu()
+            )
+            if photo_path and photo_path.exists():
+                photo_path.unlink()
+            await state.clear()
+            return
         
         # Show results
         result_text = "✅ <b>Рассылка завершена!</b>\n\n"

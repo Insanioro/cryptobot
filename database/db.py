@@ -646,6 +646,9 @@ class Database:
     
     async def get_active_users_for_broadcast(self) -> list:
         """Get all active users for broadcast (not blocked)."""
+        if not self.pool:
+            raise RuntimeError("Database pool is not initialized. Call connect() first.")
+        
         async with self.pool.acquire() as conn:
             rows = await conn.fetch(
                 """

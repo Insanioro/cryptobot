@@ -20,6 +20,9 @@ class BroadcastService:
     
     async def get_active_users(self) -> list[dict]:
         """Get list of active users for broadcast."""
+        if not self.db.pool:
+            logger.error("Database pool is not initialized")
+            return []
         return await self.db.get_active_users_for_broadcast()
     
     async def send_broadcast_message(
@@ -82,13 +85,32 @@ class BroadcastService:
         Returns:
             dict: Statistics of the broadcast
         """
-        users = await self.get_active_users()
+        try:
+            users = await self.get_active_users()
+        except Exception as e:
+            logger.error(f"Failed to get active users: {e}")
+            return {
+                'total': 0,
+                'success': 0,
+                'blocked': 0,
+                'failed': 0
+            }
+        
         total = len(users)
         success = 0
         blocked = 0
         failed = 0
         
         logger.info(f"Starting broadcast to {total} users")
+        
+        if total == 0:
+            logger.warning("No active users found for broadcast")
+            return {
+                'total': 0,
+                'success': 0,
+                'blocked': 0,
+                'failed': 0
+            }
         
         for user in users:
             user_id = user['user_id']
