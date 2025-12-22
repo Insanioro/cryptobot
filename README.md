@@ -513,7 +513,7 @@ SELECT * FROM events ORDER BY timestamp DESC LIMIT 20;
 
 ## 👥 Авторы
 
-- **Developer** - [Your Name](https://github.com/yourusername)
+- **Developer** - [Your Name](https://github.com/Insanioro)
 
 ---
 
@@ -526,16 +526,6 @@ SELECT * FROM events ORDER BY timestamp DESC LIMIT 20;
 3. Commit изменения (`git commit -m 'Add some AmazingFeature'`)
 4. Push в branch (`git push origin feature/AmazingFeature`)
 5. Откройте Pull Request
-
----
-
-## 📞 Поддержка
-
-Если у вас возникли вопросы или проблемы:
-
-- 📧 Email: support@example.com
-- 💬 Telegram: [@your_username](https://t.me/your_username)
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/repo/issues)
 
 ---
 
